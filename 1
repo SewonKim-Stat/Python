@@ -1,0 +1,42 @@
+import pandas as pd
+import seaborn as sns
+
+titanic = sns.load_dataset('titanic')
+titanic
+
+titanic.query('survived == 0')
+print(str(round(549 / 891 * 100, 1)) + '%')
+
+titanic.groupby('sex').agg(mean_survived = ('survived', 'mean'))
+
+titanic.groupby('survived').agg(mean_age = ('age', 'mean'))
+
+import numpy as np
+titanic_0 = titanic.query('survived == 0')['age'].sort_values()
+titanic_0 = titanic_0.drop(titanic_0.index[424:])
+titanic_s = titanic_0.to_numpy()
+len(titanic_s)
+titanic_1 = titanic.query('survived == 1')['age'].sort_values()
+titanic_1 = titanic_1.drop(titanic_1.index[290:])
+titanic_d = titanic_1.to_numpy()
+len(titanic_d)
+
+import matplotlib.pyplot as plt
+sns.kdeplot(data = titanic_s, color = "red", shade = True)
+sns.kdeplot(data = titanic_d, color = "blue", shade = True)
+
+from scipy import stats
+t_stat, p_value = stats.ttest_1samp(titanic_s, 30.6)
+print("t-satistics : {}, p-value : {}".format(t_stat, p_value))
+t_stat, p_value = stats.ttest_1samp(titanic_d, 28.3)
+print("t-satistics : {}, p-value : {}".format(t_stat, p_value))
+
+t_stat, p_value = stats.ttest_ind(titanic_s, titanic_d, equal_var = True, alternative = "two-sided")
+print("t-statistics : {}, p-value : {}".format(t_stat, p_value))
+
+titanic.groupby('class').agg(mean_survived = ('survived', 'mean'))
+
+titanic['cluster'] = titanic['age'] * (titanic['sibsp'] + titanic['parch'])
+titanic
+
+titanic.assign(adult_whether = np.where(titanic['age'] >= 20, 'Adult', 'Minor'))
